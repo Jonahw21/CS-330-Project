@@ -16,6 +16,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#include <fcntl.h>
 
 /* Display error message on stderr and then exit. */
 #define OOPS(msg)       {perror(msg); exit(1);}
@@ -24,6 +25,11 @@
 
 int main(int argc, char *argv[])
 {
+  if(argc != 2) {
+    printf("Invalid number of arguments");
+    exit(1);
+  }
+
   struct sockaddr_in bba; /* socket information */
   struct hostent *hp;     /* host information */
   int slen;               /* host computer */
@@ -88,8 +94,9 @@ int main(int argc, char *argv[])
     }
 } else { //child
     char *buffer[10];
-    int n_char;
-    while ((n_char = read(0, buffer, 10))!=0)
+    int n_char, file;
+    file = open(argv[1], O_RDONLY, S_IRUSR | S_IWUSR);
+    while ((n_char = read(file, buffer, 10))!=0)
     {
         n_char = write(s, buffer, n_char);
     }
@@ -98,6 +105,8 @@ int main(int argc, char *argv[])
         perror("Error reading from standard input.");
         exit (1);
     }
+    printf("File has been uploaded\n");
+    exit(0);
 }
 
   /* read from the socket, write to the screen */
