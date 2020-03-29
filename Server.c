@@ -108,17 +108,36 @@ int main()
         OOPS("error in fork");
     if(pid > 0) //parent
     {
-        char *buffer[10];
-        int n_char, status;
-        while ((n_char = read(sfd, buffer, 10))!=0)
-        {
-            n_char = write(1, buffer, n_char);
-        }
-        if (n_char==-1)
-        {
-            perror("Error reading from standard input.");
-            exit (1);
-        }
+      int output;
+      output = open("File.txt", O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+      if (output == -1) {
+          perror("Problem opening file for read and write.");
+          exit(1);
+      }
+      char *buffer[10];
+      int n_char;
+      while ((n_char = read(sfd, buffer, 10))!=0)
+      {
+          n_char = write(output, buffer, n_char);
+      }
+      if (n_char==-1)
+      {
+          perror("Error reading from standard input.");
+          exit (1);
+      }
+      close(output);
+
+        // char *buffer[10];
+        // int n_char, status;
+        // while ((n_char = read(sfd, buffer, 10))!=0)
+        // {
+        //     n_char = write(1, buffer, n_char);
+        // }
+        // if (n_char==-1)
+        // {
+        //     perror("Error reading from standard input.");
+        //     exit (1);
+        // }
     } else { //child
         char *buffer[10];
         int n_char;
