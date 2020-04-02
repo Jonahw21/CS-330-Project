@@ -12,3 +12,19 @@ Future improvements include:
 - support multiple connections at once.
 
 The goal is to have a file hosting server written with what I have learned in class.
+
+
+Using the program:
+
+Uploads: 
+1. Run the upload server so that a client can connect to it.
+2. Run the upload client specifying the file you want to upload as a command line argument
+3. Connect to the upload server given its host and port number.
+4. The file specified will be opened by the client and sent to the server.
+
+Downloads:
+1. Run the server so that a client can connect to it
+2. Connect to the server with a client. Doing so will automatically display all files available for download
+3. In the client enter the name of the file you want to download, then press CTRL-D.
+4. The server will then retrieve the file specified and send it to the client.
+5. CTRL-D in the client will close the connection and the client application.
