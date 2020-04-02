@@ -1,0 +1,2 @@
+Sample data.
+Will be saved in server upload directory.
