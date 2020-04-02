@@ -108,48 +108,39 @@ int main()
         OOPS("error in fork");
     if(pid > 0) //parent
     {
-      int output;
-      output = open("File.txt", O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
-      if (output == -1) {
-          perror("Problem opening file for read and write.");
-          exit(1);
-      }
-      char *buffer[10];
-      int n_char;
-      while ((n_char = read(sfd, buffer, 10))!=0)
-      {
-          n_char = write(output, buffer, n_char);
-      }
-      if (n_char==-1)
-      {
-          perror("Error reading from standard input.");
-          exit (1);
-      }
-      close(output);
+  //     int output;
+  //     char filename[100];
+  //     read(sfd, filename, 100);
+  //     output = open(filename, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+  //     char *buffer[10];
+  //       int n_char, status;
+  //       while ((n_char = read(output, buffer, 10))!=0)
+  //       {
+  //           n_char = write(sfd, buffer, n_char);
+  //       }
+  //       if (n_char==-1)
+  //       {
+  //           perror("Error reading from standard input.");
+  //           exit (1);
+  //       }
+	// close(output);
+    } else { //child
+      dup2(sfd, fileno(stdout));
+      execlp("ls", "ls", "../../upload/server/", NULL);
+
 
         // char *buffer[10];
-        // int n_char, status;
-        // while ((n_char = read(sfd, buffer, 10))!=0)
+        // int n_char;
+        // while ((n_char = read(0, buffer, 10))!=0)
         // {
-        //     n_char = write(1, buffer, n_char);
+        //     n_char = write(sfd, buffer, n_char);
         // }
         // if (n_char==-1)
         // {
         //     perror("Error reading from standard input.");
         //     exit (1);
         // }
-    } else { //child
-        char *buffer[10];
-        int n_char;
-        while ((n_char = read(0, buffer, 10))!=0)
-        {
-            n_char = write(sfd, buffer, n_char);
-        }
-        if (n_char==-1)
-        {
-            perror("Error reading from standard input.");
-            exit (1);
-        }
+        // exit(0);
     }
     close(sfd);
   }

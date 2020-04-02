@@ -25,11 +25,11 @@
 
 int main(int argc, char *argv[])
 {
-  if(argc != 2) {
-    printf("Invalid number of arguments");
-    exit(1);
-  }
-
+  // if (argc != 2){
+  //   printf("Invalid number of arguments\n");
+  //   exit(1);
+  // }
+  
   struct sockaddr_in bba; /* socket information */
   struct hostent *hp;     /* host information */
   int slen;               /* host computer */
@@ -93,20 +93,24 @@ int main(int argc, char *argv[])
         exit (1);
     }
 } else { //child
-    char *buffer[10];
-    int n_char, file;
-    file = open(argv[1], O_RDONLY, S_IRUSR | S_IWUSR);
-    while ((n_char = read(file, buffer, 10))!=0)
-    {
-        n_char = write(s, buffer, n_char);
-    }
-    if (n_char==-1)
-    {
-        perror("Error reading from standard input.");
-        exit (1);
-    }
-    printf("File has been uploaded\n");
-    exit(0);
+    // char *buffer[10];
+    // int n_char, file;
+    // file = open("DownloadedFile.txt", O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+    // if (file == -1){
+    //   perror("Error opening file\n");
+    // }
+    // // write(s,argv[1], 100);
+    // while ((n_char = read(s, buffer, 10))!=0)
+    // {
+    //     n_char = write(file, buffer, n_char);
+    // }
+    // if (n_char==-1)
+    // {
+    //     perror("Error reading from standard input.");
+    //     exit (1);
+    // }
+    // printf("File has been uploaded\n");
+    // exit(0);
 }
 
   /* read from the socket, write to the screen */
