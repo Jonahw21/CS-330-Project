@@ -108,25 +108,44 @@ int main()
         OOPS("error in fork");
     if(pid > 0) //parent
     {
-  //     int output;
-  //     char filename[100];
-  //     read(sfd, filename, 100);
-  //     output = open(filename, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
-  //     char *buffer[10];
-  //       int n_char, status;
-  //       while ((n_char = read(output, buffer, 10))!=0)
-  //       {
-  //           n_char = write(sfd, buffer, n_char);
-  //       }
-  //       if (n_char==-1)
-  //       {
-  //           perror("Error reading from standard input.");
-  //           exit (1);
-  //       }
-	// close(output);
+      int output, status, name_length;
+      wait(&status);
+      write(sfd, "\n", 2);
+      char filename[100];
+      name_length = read(sfd, filename, 100);
+      printf("NAME LENGTH: %d\n", name_length);
+      char *name = (char*)malloc((name_length -1) * sizeof(char));
+      sprintf(name,"%s", filename);
+      printf("NAME: #%s#\n", name);
+      char *path = (char*)malloc((20 + name_length)*sizeof(char));
+      printf("Filename received from client: %s\n", name);
+      sprintf(path, "../../upload/server/%s", name);
+      printf("File to open: #%s#\n", path);
+      output = open(path, O_RDWR);
+      printf("File opened to send to client: %d\n", output);
+      if(output == -1)
+      {
+        perror("Error opening file to send to client\n");
+      }
+      char *buffer[10];
+        int n_char;
+        while ((n_char = read(output, buffer, 10))!=0)
+        {
+            n_char = write(sfd, buffer, n_char);
+        }
+        if (n_char==-1)
+        {
+            perror("Error reading from standard input.");
+            exit (1);
+        }
+	close(output);
     } else { //child
       dup2(sfd, fileno(stdout));
+      // close(sfd);
+      // close(fileno(stdout));
       execlp("ls", "ls", "../../upload/server/", NULL);
+      close(sfd);
+      exit(0);
 
 
         // char *buffer[10];
