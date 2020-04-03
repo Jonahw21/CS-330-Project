@@ -26,5 +26,4 @@ Downloads:
 1. Run the server so that a client can connect to it
 2. Connect to the server with a client. Doing so will automatically display all files available for download
 3. In the client enter the name of the file you want to download, then press CTRL-D.
-4. The server will then retrieve the file specified and send it to the client.
-5. CTRL-D in the client will close the connection and the client application.
+4. The server will then retrieve the file specified and send it to the client. The client program will then close.
