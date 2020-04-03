@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
   //   printf("Invalid number of arguments\n");
   //   exit(1);
   // }
-
+  const int MAX_FILENAME_LENGTH = 100;
   struct sockaddr_in bba; /* socket information */
   struct hostent *hp;     /* host information */
   int slen;               /* host computer */
@@ -80,9 +80,15 @@ int main(int argc, char *argv[])
     OOPS("connect");
 
   int pid, status;
+  int fd[2];
+  char filename[MAX_FILENAME_LENGTH];
+
+  pipe(fd);
   pid = fork();
   if (pid == -1)
     OOPS("problem in fork");
+
+  //Child Process to retrieve file list from server
   if (pid == 0) //child
   {
     char *buffer[10];
@@ -105,29 +111,38 @@ int main(int argc, char *argv[])
     exit(0);
   }
   else
-  { //parent
-    wait(&status);
+  { //parent process to download a specified file
+    wait(&status);  //need to wait to retrieve file list from server
     printf("Back in parent 1\n");
     char *buffer[10];
     int n_char, file;
-    if (fork() == 0) //second child
+
+    //Child process to get and send name of file to be downloaded to server
+    if (fork() == 0)
     {
-      while ((n_char = read(fileno(stdin), buffer, 10)) != 0)
+      close(fd[0]);
+      if ((n_char = read(fileno(stdin), buffer, MAX_FILENAME_LENGTH)) != 0)
       {
         n_char = write(s, buffer, n_char);
+        printf("\nBUFFER: #%s#\n");
+        write(fd[1], buffer, n_char * sizeof(char));
       }
-      printf("Done sending filename to server\n");
+      close(fd[1]);
+      printf("\nDone sending filename to server\n");
       exit(0);
     }
-    wait(&status);
+
+    wait(&status);  //Waiting for name of file to be downloaded to be sent to the server
+    close(fd[1]);
     printf("Back in parent 2\n");
-    file = open("DownloadedFile.txt", O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
+    read(fd[0], &filename, sizeof(filename));
+    printf("File being downloaded: #%s#\n", filename);
+    file = open(filename, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
     if (file == -1)
     {
       perror("Error opening file\n");
     }
     printf("File opened for writing: %d\n", file);
-    // write(s,argv[1], 100);
     while ((n_char = read(s, buffer, 10)) != 0)
     {
       n_char = write(file, buffer, n_char);
