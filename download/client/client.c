@@ -1,11 +1,8 @@
 /*****************************************************************
-  Sockets Client Program 
-
-  This code is a modified version taken from Nigel Horspool's "The Berkeley
-  Unix Environment".
-
-  This client connects to a specified server (host) and receives
-  information from it.
+ * Client for downloads. It will receive a list of all files
+ * available for download. The user can then specify which file to
+ * download. If a file with the same name exists in the same directory
+ * as the client then that file will be overwritten.
 *****************************************************************/
 
 #include <stdio.h>
@@ -29,10 +26,6 @@
 
 int main(int argc, char *argv[])
 {
-  // if (argc != 2){
-  //   printf("Invalid number of arguments\n");
-  //   exit(1);
-  // }
   const int MAX_FILENAME_LENGTH = 100;
   struct sockaddr_in bba; /* socket information */
   struct hostent *hp;     /* host information */
@@ -93,13 +86,11 @@ int main(int argc, char *argv[])
   {
     char *buffer[10];
     int n_char;
-    printf("In child process\n");
     while ((n_char = read(s, buffer, 10)) != 0)
     {
       n_char = write(1, buffer, n_char);
       if (n_char < 10)
       {
-        printf("Done ls from server\n");
         exit(0);
       }
     }
@@ -113,7 +104,6 @@ int main(int argc, char *argv[])
   else
   { //parent process to download a specified file
     wait(&status);  //need to wait to retrieve file list from server
-    printf("Back in parent 1\n");
     char *buffer[10];
     int n_char, file;
 
@@ -121,28 +111,24 @@ int main(int argc, char *argv[])
     if (fork() == 0)
     {
       close(fd[0]);
+      printf("\nType the name of the file you would like to download, then press CTRL-D\n");
       if ((n_char = read(fileno(stdin), buffer, MAX_FILENAME_LENGTH)) != 0)
       {
         n_char = write(s, buffer, n_char);
-        printf("\nBUFFER: #%s#\n");
         write(fd[1], buffer, n_char * sizeof(char));
       }
       close(fd[1]);
-      printf("\nDone sending filename to server\n");
       exit(0);
     }
 
     wait(&status);  //Waiting for name of file to be downloaded to be sent to the server
     close(fd[1]);
-    printf("Back in parent 2\n");
     read(fd[0], &filename, sizeof(filename));
-    printf("File being downloaded: #%s#\n", filename);
     file = open(filename, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
     if (file == -1)
     {
       perror("Error opening file\n");
     }
-    printf("File opened for writing: %d\n", file);
     while ((n_char = read(s, buffer, 10)) != 0)
     {
       n_char = write(file, buffer, n_char);
@@ -152,7 +138,7 @@ int main(int argc, char *argv[])
       perror("Error reading from standard input.");
       exit(1);
     }
-    printf("File has been downloaded\n");
+    printf("\nFile has been downloaded\n");
     exit(0);
   }
 

@@ -1,12 +1,6 @@
 /*****************************************************************
- Sockets Daemon Program
-
-  This code was modified from Nigel Horspools, "The Berkeley
-  Unix Environment".
-
-  A daemon process is started on some host.  A socket is acquired
-  for use, and it's number is displayed on the screen.  For clients
-  to connect to the server, they muse use this socket number.
+ * Server for downloads. Given a file name it will retrieve the
+ * file from the uploads directory and send it to the client.
 *****************************************************************/
 
 #include <stdio.h>
@@ -112,17 +106,12 @@ int main()
       wait(&status);
       write(sfd, "\n", 2);
       char filename[100];
-      name_length = read(sfd, filename, 100);
-      printf("NAME LENGTH: %d\n", name_length);
+      name_length = read(sfd, filename, 100); //Get name of file from client
       char *name = (char*)malloc((name_length -1) * sizeof(char));
       sprintf(name,"%s", filename);
-      printf("NAME: #%s#\n", name);
       char *path = (char*)malloc((20 + name_length)*sizeof(char));
-      printf("Filename received from client: %s\n", name);
-      sprintf(path, "../../upload/server/%s", name);
-      printf("File to open: #%s#\n", path);
+      sprintf(path, "../../upload/server/%s", name); //format path to look for file in correct directory
       output = open(path, O_RDWR);
-      printf("File opened to send to client: %d\n", output);
       if(output == -1)
       {
         perror("Error opening file to send to client\n");
@@ -135,34 +124,17 @@ int main()
         }
         if (n_char==-1)
         {
-            perror("Error reading from standard input.");
+            perror("Error reading from file.");
             exit (1);
         }
 	close(output);
-    } else { //child
+    } else { //child process. Sends names of all files available for download to client
       dup2(sfd, fileno(stdout));
-      // close(sfd);
-      // close(fileno(stdout));
       execlp("ls", "ls", "../../upload/server/", NULL);
       close(sfd);
       exit(0);
-
-
-        // char *buffer[10];
-        // int n_char;
-        // while ((n_char = read(0, buffer, 10))!=0)
-        // {
-        //     n_char = write(sfd, buffer, n_char);
-        // }
-        // if (n_char==-1)
-        // {
-        //     perror("Error reading from standard input.");
-        //     exit (1);
-        // }
-        // exit(0);
     }
     close(sfd);
   }
-
   return 0;
 } 
